@@ -16,8 +16,8 @@
         }
     ],
     "autoload": {
-        "psr-4": {
-            "Toemaar\\Email\\": "src"
+        "psr-0": {
+            "ToemaarEmail": "src/"
         }
     },
     "require": {
