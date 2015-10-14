@@ -1,8 +1,9 @@
 {
-    "name": "toemaar/toemaar-email",
+    "name": "toemaar-email",
     "description": "A module that helps you send multi-mime type email's based on templates.",
-    "license": "The BSD 2-Clause License",
+    "license": "MIT",
     "version": "1.0.0",
+    "keywords": ["email", "sending", "zf2"],
     "authors": [
         {
             "name": "Jason Lentink",
