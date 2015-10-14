@@ -14,7 +14,7 @@
             "Toemaar\\Email\\": "src"
         }
     },    
-    "minimum-stability": "dev-master",
+    "minimum-stability": "dev",
     "require": {
     	"php": ">=5.3.3",
 	    "zendframework/zend-servicemanager" : ">=2.3",
