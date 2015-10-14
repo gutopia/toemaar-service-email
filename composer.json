@@ -1,0 +1,25 @@
+{
+    "name": "toemaar/toemaar-email",
+    "description": "A module that helps you send multi-mime type email's based on templates.",
+    "license": "The BSD 2-Clause License",
+    "authors": [
+        {
+            "name": "Jason Lentink",
+            "email": "jason@toemaar.nl"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Toemaar\\Email\\": "src"
+        }
+    },    
+    "minimum-stability": "dev",
+    "require": {
+    	"php": ">=5.3.3",
+	    "zendframework/zend-servicemanager" : ">=2.3",
+	    "zendframework/zend-mail" : ">=2.3"    
+    },
+    "require-dev" : {
+        "phpunit/phpunit": "~4.0"
+    },
+}

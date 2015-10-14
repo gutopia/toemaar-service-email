@@ -1,0 +1,9 @@
+{
+    "From": {
+        "Name": "example",
+        "Address": "example@example.com"
+    },
+    "Replyto": "example@example.com",
+    "Subject": "Example subject",
+    "ParentTheme": ""
+}
