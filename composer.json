@@ -2,7 +2,7 @@
     "name": "toemaar/toemaar-email",
     "description": "A module that helps you send multi-mime type email's based on templates.",
     "license": "The BSD 2-Clause License",
-    "version": "1.0.0"
+    "version": "1.0.0",
     "authors": [
         {
             "name": "Jason Lentink",
