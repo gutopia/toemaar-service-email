@@ -20,7 +20,8 @@
             "ToemaarEmail": "src/"
         },
         "classmap": [
-            "./Module.php"
+            "./Module.php",
+            "src"
         ]
     },
     "require": {
