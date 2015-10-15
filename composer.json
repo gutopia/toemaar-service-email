@@ -18,7 +18,10 @@
     "autoload": {
         "psr-0": {
             "ToemaarEmail": "src/"
-        }
+        },
+        "classmap": [
+            "./Module.php"
+        ]
     },
     "require": {
     	"php": ">=5.3.3",

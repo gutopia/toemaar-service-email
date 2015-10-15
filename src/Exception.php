@@ -11,6 +11,7 @@
  * @copyright Copyright (c) 2005-2015 Toemaar. (http://www.toemaar.nl)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Toemaar\Email;
 
 class Exception extends \Exception {}
