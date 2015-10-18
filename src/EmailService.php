@@ -105,7 +105,9 @@ class EmailService implements ServiceManagerAwareInterface
     /**
      * Factory constructor
      */
-    public function init(){        
+    public function __construct(){
+        $this->setTemplateRoot(__DIR__ . '/templates');
+        $this->setTemplate('default', 'en_EN');
     }
 
     /**
@@ -130,6 +132,11 @@ class EmailService implements ServiceManagerAwareInterface
             throw new Exception('Template root is not found!');
 
         $this->_templatesRoot = $templateRoot;
+
+
+        if($this->_template)
+            $this->_template->setTemplateRoot($this->_templatesRoot);
+
         return $this;
     }
    
@@ -142,10 +149,16 @@ class EmailService implements ServiceManagerAwareInterface
      * @return EmailService
      * @throws Exception*
      */
-    public function setTemplate($template, $i18n){        
-        $this->_template = new Template($template, $i18n);
+    public function setTemplate($template, $i18n){
+
         $this->_variables['baseurl'] = $this->constructBaseUrl();
-        $this->_template->setVariables($this->_variables);
+
+        $this->_template = new Template();
+        $this->_template
+            ->setTemplateRoot($this->_templatesRoot)
+            ->setI18n($i18n)
+            ->setTemplate($template)
+            ->setVariables($this->_variables);
 
         return $this;
     }
@@ -257,7 +270,9 @@ class EmailService implements ServiceManagerAwareInterface
      * @return string
      */
     protected function constructBaseUrl(){
+
         /** @var Request $request */
+        /*
         $request = $this->getServiceManager()->get('Request');
         $uri = $request->getUri();
         $scheme = $uri->getScheme();
@@ -281,7 +296,8 @@ class EmailService implements ServiceManagerAwareInterface
 
         if(!$url)
             $url = '/';
-
+*/
+        $host = $scheme = $port = $url = '';
         return sprintf('%s://%s%s%s', $scheme, $host,$port, $url);
     }
 

@@ -45,7 +45,7 @@ class Template
     /**
      * @var string
      */
-    protected $_templatesRoot = __DIR__ . '/templates';
+    protected $_templatesRoot = '';
 
     /**
      * @var null|Testament
@@ -74,23 +74,20 @@ class Template
      */
     protected $_parentTemplate = '';
     
-    public function __construct($template = null, $i18n = null){
-        
-        if(null !== $template)
-            $this->setTemplate($template);
-        
-        if(null !== $i18n)
-            $this->setI18n($i18n);
-        
+    public function __construct(){
+
     }
 
     /**
      * Set email i18n
      *
      * @param string $i18n
+     * @return Template
      */
     public function setI18n($i18n){
         $this->_i18n = $i18n;
+
+        return $this;
     }
 
     /**
@@ -102,10 +99,24 @@ class Template
      * @throws Exception
      */
     public function setTemplate($template){
-        if(!is_dir($this->_templatesRoot . $template))
-            throw new Exception('Email Template ' . $template . ' could not be found in (' . $this->_templatesRoot . ')');
+        if(!is_dir($this->_templatesRoot . '/' . $template))
+            throw new Exception('Email Template ' . $template . ' could not be found. (in: ' . $this->_templatesRoot . ')');
 
         $this->_template = $template;
+        return $this;
+    }
+
+    /**
+     * @param null $templateRoot
+     *
+     * @return Template
+     */
+    public function setTemplateRoot($templateRoot = null){
+        if(null === $templateRoot)
+            $templateRoot = __DIR__ . '/templates/';
+
+        $this->_templatesRoot = $templateRoot;
+
         return $this;
     }
     
@@ -174,15 +185,15 @@ class Template
     }
 
     protected function findFiles(){
-        $path = $this->_templatesRoot .$this->_template;
+        $path = $this->_templatesRoot . '/' .$this->_template;
+
         if(!is_dir($path))
             throw new Exception('Template ' . $this->_template . ' is not found.');
 
         if(!is_file($path . '/' . $this->_i18n . '.json'))
-            throw new Exception('Template testament file is not found. (' . $this->_template . ')');
-        
-        $this->_templatesRoot = $path;
-        $testamentObject = json_decode(file_get_contents($this->_templatesRoot . '/' . $this->_i18n . '.json'));
+            throw new Exception('Template testament file is not found. (' . $path . '/' . $this->_i18n . '.json)');
+
+        $testamentObject = json_decode(file_get_contents($path . '/' . $this->_i18n . '.json'));
 
         if(null == $testamentObject)
             throw new Exception('Invalid Json in testament');
@@ -192,17 +203,30 @@ class Template
             ->setFromAddress($testamentObject->Replyto)
             ->setFromName($testamentObject->From->Name)
             ->setSubject($testamentObject->Subject)
-            ->setReplyTo($testamentObject->From->Address);
+            ->setReplyTo($testamentObject->From->Address)
+            ->setParent($testamentObject->ParentTheme);
 
+        if($this->_testament->getParent())
+            $this->setParent($this->_testament->getParent());
         
-        if(!is_file($this->_templatesRoot . '/' . $this->_i18n . '.phtml'))
-            throw new Exception('Html file for template could not be found. (' . $this->_template . '/' . $this->_i18n . '.phtml)');
+        if(!is_file($path . '/' . $this->_i18n . '.phtml'))
+            throw new Exception('Html file for template could not be found. (' . $path . '/' . $this->_i18n . '.phtml)');
         
-        if(!is_file($this->_templatesRoot . '/' . $this->_i18n . '.ptext'))
-            throw new Exception('Text file for template could not be found. (' . $this->_template . '/' . $this->_i18n . '.ptext)');
+        if(!is_file($path . '/' . $this->_i18n . '.ptext'))
+            throw new Exception('Text file for template could not be found. (' . $path . '/' . $this->_i18n . '.ptext)');
                     
-        $this->_htmlTemplate = $this->_templatesRoot . '/' . $this->_i18n . '.phtml';            
-        $this->_textTemplate = $this->_templatesRoot . '/' . $this->_i18n . '.ptext';
+        $this->_htmlTemplate = $path . '/' . $this->_i18n . '.phtml';
+        $this->_textTemplate = $path . '/' . $this->_i18n . '.ptext';
+    }
+
+    public function setParent($parentTheme){
+        $path = (substr($this->_templatesRoot, 0, -1) == '/' ? substr($this->_templatesRoot, 0, strlen($this->_templatesRoot)-1) : $this->_templatesRoot);
+
+        $this->_parent = new Template();
+        $this->_parent
+            ->setTemplateRoot($path)
+            ->setI18n($this->_i18n)
+            ->setTemplate($parentTheme);
     }
 
     /**
@@ -244,6 +268,22 @@ class Template
         return $this->_renderedText;
     }
 
+    public function renderForChild($html, $text){
+        $this->findFiles();
+        $this->_variables['childcontent'] = $html;
+        $this->_renderedHtml = $this->readTemplateFile($this->_htmlTemplate);
+        $this->_variables['childcontent'] = $text;
+        $this->_renderedText = $this->readTemplateFile($this->_textTemplate);
+        if($this->_parent){
+            $this->_parent->setVariables($this->_variables);
+            $this->_parent->renderForChild($this->_renderedHtml, $this->_renderedText);
+            $this->_renderedHtml = $this->_parent->getHtml();
+            $this->_renderedText = $this->_parent->getText();
+        }
+
+        return $this;
+    }
+
     /**
      * Render html and text content for email
      *
@@ -254,8 +294,15 @@ class Template
     {
         $this->findFiles();
         $this->_renderedHtml = $this->readTemplateFile($this->_htmlTemplate); 
-        $this->_renderedText = $this->readTemplateFile($this->_textTemplate); 
-        
+        $this->_renderedText = $this->readTemplateFile($this->_textTemplate);
+
+        if($this->_parent){
+            $this->_parent->setVariables($this->_variables);
+            $this->_parent->renderForChild($this->_renderedHtml, $this->_renderedText);
+            $this->_renderedHtml = $this->_parent->getHtml();
+            $this->_renderedText = $this->_parent->getText();
+        }
+
         return $this;
     }
     

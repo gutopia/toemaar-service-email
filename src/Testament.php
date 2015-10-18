@@ -38,6 +38,31 @@ class Testament
     protected $_subject = '';
 
     /**
+     * @var string
+     */
+    protected $_parent = '';
+
+    /**
+     * @return string
+     */
+    public function getParent()
+    {
+        return $this->_parent;
+    }
+
+    /**
+     * @param string $parent
+     *
+     * @return Testament
+     */
+    public function setParent($parent)
+    {
+        $this->_parent = $parent;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getFromName()
